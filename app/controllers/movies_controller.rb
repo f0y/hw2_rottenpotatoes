@@ -7,6 +7,18 @@ class MoviesController < ApplicationController
   end
 
   def index
+    session_params = [:ratings, :sort]
+    redirection = false
+    session_params.each do |key|
+      if session.has_key? key and not params.has_key? key
+        params[key] = session[key]
+        redirection = true
+      end
+      session[key] = params[key]
+    end
+    if redirection
+      redirect_to params
+    end
     params[:ratings] = [] if params[:ratings] == nil
     @ratings = params[:ratings].is_a?(Hash) ? params[:ratings].keys : params[:ratings]
     @movies = Movie.order(params[:sort]).where({:rating => @ratings})
